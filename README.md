@@ -53,7 +53,7 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 | png_i | png ||
 | png_RGBA_i | png |Fully transparent border.|
 | png_up_i | png |Only has top border.|
-|webP_i|webp|boder width is 0, don't have tool to edit(can edit it use OpenCV)|
+|webP_i|webp|Boder width is 0, don't have tool to edit (can edit it use OpenCV)|
 
 ## Limitations
 #### didn't cover all the image types

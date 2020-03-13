@@ -13,20 +13,18 @@
 using namespace cv;
 using namespace std;
 
-typedef Vec3b TYPE;
-
-
 #define RGB 3
 #define RGBA 4
 #define ONE 1
 
 int channel;
 
-
-// identifying mat data type
 string type2str(int type) {
+/*
+        code modified from https://stackoverflow.com/questions/10167534/how-to-find-out-what-type-of-a-mat-object-is-with-mattype-in-opencv/39780825
+        int type: cv::Mat.type()
+*/
         string r;
-
         uchar depth = type & CV_MAT_DEPTH_MASK;
         uchar chans = 1 + (type >> CV_CN_SHIFT);
 
@@ -49,7 +47,9 @@ string type2str(int type) {
 }
 
 const char * read_MIME_type(char *filename) {
-
+/*
+        Multipurpose Internet Mail Extensions
+*/
         magic_t handle = magic_open(MAGIC_MIME);
         if (handle == NULL) {
                 printf("unable to initialize magic library\n");
@@ -61,7 +61,6 @@ const char * read_MIME_type(char *filename) {
                 abort();
         }
         const char * type = magic_file(handle, filename);
-        // std::cout<<handle<<"\n";
         // image/png
         // image/jpeg
         // image/webp
@@ -69,8 +68,8 @@ const char * read_MIME_type(char *filename) {
         return type;
 }
 
-int main( int argc, char** argv )
-{
+int main( int argc, char** argv ) {
+
         char* inImage = argv[1];
         char* outImage = argv[2];
 
@@ -91,67 +90,38 @@ int main( int argc, char** argv )
         }
 
         // trim process
-        // outImageMat = inImageMat; // test
 
         // check image opencv data type & image size
         string ty =  type2str( inImageMat.type() );
         printf("Input image info: %s %dx%d \n", ty.c_str(), inImageMat.cols, inImageMat.rows );
 
         int r1, r2, c1, c2;
-        // check top border (r1)
-        // inImageMat.at<> -> border RGB
+        // take inImageMat.at<Vec3b>(0,0) as border RGB
+        // top border
         bool flag = true;
         for(int y = 0; y < inImageMat.rows; y++) {
                 for(int x = 0; x < inImageMat.cols; x++) {
                         bool same = true;
                         switch(channel){
-                                case 1: {
-                                        cout << inImageMat.at<unsigned char>(y,x);
-                                        same = inImageMat.at<unsigned char>(y,x) == inImageMat.at<unsigned char>(0,0);
-                                        break;
-                                }
-                                case 3: {
-                                        // cout << inImageMat.at<Vec3b>(y,x) << inImageMat.at<Vec3b>(0,0) << endl;
-                                        same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0);
-                                        break;
-                                }
-                                case 4:  {
-                                        // cout << inImageMat.at<Vec4b>(y,x) << inImageMat.at<Vec4b>(0,0) << endl;
-                                        same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0);
-                                        break;
-                                }
+                                case 3: { same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0); break; }
+                                case 4: { same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0); break; }
                         }
                         if(!same){
-                                cout << inImageMat.at<unsigned char>(y,x) <<inImageMat.at<unsigned char>(0,0)<< endl;
                                 r1 = y;
                                 std::printf("top: %d\n", r1);
                                 flag = false;
                                 break;
                         }
                 }
-                if(!flag) {
-                        flag = true; break;
-                }
+                if(!flag) { flag = true; break; }
         }
-
+        // bottom border
         for(int y = inImageMat.rows-1; y >= 0; y--) {
                 for(int x = 0; x < inImageMat.cols; x++) {
                         bool same = true;
                         switch(channel){
-                                case 1: {
-                                        same = inImageMat.at<int>(y,x) == inImageMat.at<int>(0,0);
-                                        break;
-                                }
-                                case 3: {
-                                        // cout << inImageMat.at<Vec3b>(y,x) << inImageMat.at<Vec3b>(0,0) << endl;
-                                        same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0);
-                                        break;
-                                }
-                                case 4:  {
-                                        // cout << inImageMat.at<Vec4b>(y,x) << inImageMat.at<Vec4b>(0,0) << endl;
-                                        same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0);
-                                        break;
-                                }
+                                case 3: { same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0); break; }
+                                case 4:  { same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0); break; }
                         }
                         if(!same){
                                 r2 = y;
@@ -160,30 +130,15 @@ int main( int argc, char** argv )
                                 break;
                         }
                 }
-                if(!flag) {
-                        flag = true; break;
-                }
+                if(!flag) { flag = true; break; }
         }
-
+        // left border
         for(int x = 0; x < inImageMat.cols; x++) {
                 for(int y = r1; y <= r2; y++) {
                         bool same = true;
                         switch(channel){
-                                case 1: {
-                                        // cout << inImageMat.at<int>(y,x) << inImageMat.at<int>(0,0) << endl;
-                                        same = inImageMat.at<int>(y,x) == inImageMat.at<int>(0,0);
-                                        break;
-                                }
-                                case 3: {
-                                        // cout << inImageMat.at<Vec3b>(y,x) << inImageMat.at<Vec3b>(0,0) << endl;
-                                        same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0);
-                                        break;
-                                }
-                                case 4:  {
-                                        // cout << inImageMat.at<Vec4b>(y,x) << inImageMat.at<Vec4b>(0,0) << endl;
-                                        same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0);
-                                        break;
-                                }
+                                case 3: { same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0); break; }
+                                case 4:  { same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0); break; }
                         }
                         if(!same){
                                 c1 = x;
@@ -192,29 +147,15 @@ int main( int argc, char** argv )
                                 break;
                         }
                 }
-                if(!flag) {
-                        flag = true; break;
-                }
+                if(!flag) { flag = true; break; }
         }
-
+        // right border
         for(int x = inImageMat.cols-1; x >=0 ; x--) {
                 for(int y = r1; y <= r2; y++) {
                         bool same = true;
                         switch(channel){
-                                case 1: {
-                                        same = inImageMat.at<int>(y,x) == inImageMat.at<int>(0,0);
-                                        break;
-                                }
-                                case 3: {
-                                        // cout << inImageMat.at<Vec3b>(y,x) << inImageMat.at<Vec3b>(0,0) << endl;
-                                        same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0);
-                                        break;
-                                }
-                                case 4:  {
-                                        // cout << inImageMat.at<Vec4b>(y,x) << inImageMat.at<Vec4b>(0,0) << endl;
-                                        same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0);
-                                        break;
-                                }
+                                case 3: { same = inImageMat.at<Vec3b>(y,x) == inImageMat.at<Vec3b>(0,0); break; }
+                                case 4:  { same = inImageMat.at<Vec<uint16_t,4>>(y,x) == inImageMat.at<Vec<uint16_t,4>>(0,0); break; }
                         }
                         if(!same){
                                 c2 = x;
@@ -223,34 +164,26 @@ int main( int argc, char** argv )
                                 break;
                         }
                 }
-                if(!flag) {
-                        flag = true; break;
-                }
+                if(!flag) { flag = true; break; }
         }
 
-        int h = r2 - r1 + 1, w = c2 - c1 + 1;
         // initial out image mat
+        int h = r2 - r1 + 1, w = c2 - c1 + 1;
         Mat outImageMat;
         switch(channel) {
-                case 3: { outImageMat = Mat(Size(w, h), CV_8UC3); break;}
-                case 4: { outImageMat = Mat(Size(w, h), CV_16UC4); break;}
+                case 3: { outImageMat = Mat(Size(w, h), CV_8UC3); break; }
+                case 4: { outImageMat = Mat(Size(w, h), CV_16UC4); break; }
         }
-
+        // write out image mat
         for(int y = 0; y < h; y++) {
                 for(int x = 0; x < w; x++) {
                         switch(channel) {
-                                case 3: {outImageMat.at<Vec3b>(y,x) = inImageMat.at<Vec3b>(y+r1,x+c1); break;}
-                                case 4: {
-                                        cout << y<<endl;
-                                        outImageMat.at<Vec<uint16_t,4>>(y,x) = inImageMat.at<Vec<uint16_t,4>>(y+r1,x+c1); break;}
+                                case 3: { outImageMat.at<Vec3b>(y,x) = inImageMat.at<Vec3b>(y+r1,x+c1); break; }
+                                case 4: { outImageMat.at<Vec<uint16_t,4>>(y,x) = inImageMat.at<Vec<uint16_t,4>>(y+r1,x+c1); break; }
                         }
-                        // cout << inImageMat.at<int>(y,x) << endl;
                 }
         }
 
-
-
-        // outImageMat = inImageMat;
         // write out image
         imwrite( outImage, outImageMat );
 
@@ -259,8 +192,6 @@ int main( int argc, char** argv )
         namedWindow( "trimmed image", WINDOW_AUTOSIZE );
         imshow( inImage, inImageMat );
         imshow( "trimmed image", outImageMat );
-
         waitKey(0);
-
         return 0;
 }
