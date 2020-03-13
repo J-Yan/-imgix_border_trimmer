@@ -63,6 +63,18 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 ## Test case input and output images
 [origin, lib output, opencv output]
 #### jpeg_i.jpeg
+<div class="display: flex;">
+  <div style="flex: 33.33%;padding: 5px;">
+    <img src="https://backto1995.com/temp_img/jpeg_i.jpeg"style="width:100%">
+  </div>
+  <div style="flex: 33.33%;padding: 5px;">
+    <img src="https://backto1995.com/temp_img/jpeg_o.jpeg" style="width:100%">
+  </div>
+  <div style="flex: 33.33%;padding: 5px;">
+    <img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" style="width:100%">
+  </div>
+</div>
+
 <img src="https://backto1995.com/temp_img/jpeg_i.jpeg" width="30%"/>
 <img src="https://backto1995.com/temp_img/jpeg_o.jpeg" width="30%" style="float:left"/>
 <img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" width="30%" style="float:left"/>
