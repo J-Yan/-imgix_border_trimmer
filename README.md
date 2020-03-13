@@ -64,8 +64,8 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 
 ## Test case input and output images
 [  
-  origin,
-  lib output,
+  origin,  
+  lib output,  
   opencv output  
 ]
 #### jpeg_i.jpeg
