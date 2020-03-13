@@ -105,4 +105,6 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 ```
 
 ## Links and credits
-How to install OpenCV: https://medium.com/@jaskaranvirdi/setting-up-opencv-and-c-development-environment-in-xcode-b6027728003
+- How to install OpenCV:  
+https://medium.com/@jaskaranvirdi/setting-up-opencv-and-c-development-environment-in-xcode-b6027728003  
+- Read and write image functions are mostly modified form example code of libpng, libjpg and OpenCV.
