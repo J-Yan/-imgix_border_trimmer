@@ -81,6 +81,7 @@ webP_i.jpeg
 on MacOS
 #### borderTrimmer.cpp
 ```
+brew install libmagic
 brew install libpng
 clang++ -lz -lpng16 -lmagic -ljpeg borderTrimmer.cpp
 
