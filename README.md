@@ -21,30 +21,12 @@ Write a program in C/C++ that takes an image file (e.g. a PNG) and trims the bor
 #### 2. Use "opencv" for png, jpeg and webP
 In both approaches, use "libmagic" to detect the image type by the magic number at the beginning of image files
 
-## How to run
-#### borderTrimmer.cpp
-```
-clang++ -lz -lpng16 -lmagic -ljpeg borderTrimmer.cpp
 
-./a.out jpeg_i.jpeg jpeg_o.jpeg
-./a.out jpeg_lr_i.jpeg jpeg_lr_o.jpeg
-./a.out png_8_i.png png_8_o.png
-./a.out png_i.png png_o.png
-./a.out png_RGBA_i.png png_RGBA_o.png
-./a.out png_up_i.png png_up_o.png
-```
-#### borderTrimmer_cv.cpp
-```
-g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.cpp -o cv.out
 
-./cv.out jpeg_i.jpeg jpeg_o_cv.jpeg
-./cv.out jpeg_lr_i.jpeg jpeg_lr_o_cv.jpeg
-./cv.out png_8_i.png png_8_o_cv.png
-./cv.out png_i.png png_o_cv.png
-./cv.out png_RGBA_i.png png_RGBA_o_cv.png
-./cv.out png_up_i.png png_up_o_cv.png
-./cv.out webP_i.webp webP_o_cv.webp
-```
+## Limitations
+#### Didn't cover all the image types
+- gif image can't be read by OpenCV directly, but can be read by "FreeImage" or "gif_lib"
+#### Trimmed image might have bigger size than original one
 
 ## Test images
 | File Name | Type | Notes | Source |
@@ -57,20 +39,15 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 | png_up_i | png |Only has top border.|Taken by myself|
 |webP_i|webp|Boder width is 0, don't have tool to edit (can edit it use OpenCV). Take as 0-width border teat case.|From Internet|
 
-## Limitations
-#### Didn't cover all the image types
-- gif image can't be read by OpenCV directly, but can be read by "FreeImage" or "gif_lib"
-#### Trimmed image might have bigger size than original one
-
 ## Test case input and output images
 [ origin, lib output, opencv output ]  
 
-jpeg_i.jpeg  
+jpeg_i.jpeg (Border has noise)  
 <img src="https://backto1995.com/temp_img/jpeg_i.jpeg" width="30%"/>
 <img src="https://backto1995.com/temp_img/jpeg_o.jpeg" width="30%"/>
 <img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" width="30%"/>  
 
-jpeg_lr_i.jpeg  
+jpeg_lr_i.jpeg (Border has noise)  
 <img src="https://backto1995.com/temp_img/jpeg_lr_i.jpeg" width="30%"/>
 <img src="https://backto1995.com/temp_img/jpeg_lr_o.jpeg" width="30%"/>
 <img src="https://backto1995.com/temp_img/jpeg_lr_o_cv.jpeg" width="30%"/>  
@@ -99,3 +76,33 @@ webP_i.jpeg
 <img src="https://backto1995.com/temp_img/webP_i.webp" width="30%"/>
 <img src="https://backto1995.com/temp_img/webP_o.webp" width="30%"/>
 <img src="https://backto1995.com/temp_img/webP_o_cv.webp" width="30%"/>  
+
+## How to run
+on MacOS
+#### borderTrimmer.cpp
+```
+brew install libpng
+clang++ -lz -lpng16 -lmagic -ljpeg borderTrimmer.cpp
+
+./a.out jpeg_i.jpeg jpeg_o.jpeg
+./a.out jpeg_lr_i.jpeg jpeg_lr_o.jpeg
+./a.out png_8_i.png png_8_o.png
+./a.out png_i.png png_o.png
+./a.out png_RGBA_i.png png_RGBA_o.png
+./a.out png_up_i.png png_up_o.png
+```
+#### borderTrimmer_cv.cpp
+```
+g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.cpp -o cv.out
+
+./cv.out jpeg_i.jpeg jpeg_o_cv.jpeg
+./cv.out jpeg_lr_i.jpeg jpeg_lr_o_cv.jpeg
+./cv.out png_8_i.png png_8_o_cv.png
+./cv.out png_i.png png_o_cv.png
+./cv.out png_RGBA_i.png png_RGBA_o_cv.png
+./cv.out png_up_i.png png_up_o_cv.png
+./cv.out webP_i.webp webP_o_cv.webp
+```
+
+## Links and credits
+How to install OpenCV: https://medium.com/@jaskaranvirdi/setting-up-opencv-and-c-development-environment-in-xcode-b6027728003
