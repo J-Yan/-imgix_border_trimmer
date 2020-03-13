@@ -7,28 +7,22 @@
 
 #include <png.h>
 #include <jpeglib.h>
-// #include <gif_lib.h>
 #include <setjmp.h>
-
-
-
-typedef unsigned short int out_idx_DT;
 
 #define RGB 3
 #define RGBA 4
 
 int width, height, width_o, height_o, channels;
+const char * type;
 png_byte color_type;   // int
 png_byte bit_depth;
-// png_bytep -> unsigned char *
-// png_bytep *row_pointers = NULL, *out_png = NULL;
-unsigned char **row_pointers = NULL, **out_png = NULL;
-const char * type;
-
-JSAMPLE * image_buffer;	/* Points to large array of R,G,B-order data */
+unsigned char **row_pointers = NULL, **out_png = NULL; // png
+JSAMPLE * image_buffer;	// Jpeg: Points to large array of R,G,B-order data
 
 const char * read_MIME_type(char *filename) {
-
+/*
+        Multipurpose Internet Mail Extensions
+*/
         magic_t handle = magic_open(MAGIC_MIME);
         if (handle == NULL) {
                 printf("unable to initialize magic library\n");
@@ -40,19 +34,13 @@ const char * read_MIME_type(char *filename) {
                 abort();
         }
         const char * type = magic_file(handle, filename);
-        // std::cout<<handle<<"\n";
         // image/png
         // image/jpeg
-        // image/gif
         std::printf("【TYPE】%s\n", type);
         return type;
 }
 
-
 void read_png_file(FILE *fp) {
-
-        // // open image file
-        // FILE *fp = fopen(filename, "rb");
 
         // ensure that the size of these structures is correct
         // even with a dynamically linked libpng
@@ -62,8 +50,7 @@ void read_png_file(FILE *fp) {
         png_infop info = png_create_info_struct(png);
         if(!info) abort();
 
-        // int setjmp (jmp_buf env);
-        // Save calling environment for long jump ??
+        // Save calling environment for long jump
         if(setjmp(png_jmpbuf(png))) abort();
 
         // initialize input/output for the PNG file
@@ -76,78 +63,58 @@ void read_png_file(FILE *fp) {
 
         width      = png_get_image_width(png, info);
         height     = png_get_image_height(png, info);
-        color_type = png_get_color_type(png, info); // 6 color type of row ??
+        color_type = png_get_color_type(png, info); // 6 color type of row
         bit_depth  = png_get_bit_depth(png, info); // 16 bits,  48 bits per pixel
-
-        // std::cout<<width<<" "<<height<<" "<<color_type<<" "<<bit_depth;
-        std::printf("%d %d %d %d\n",width,height,color_type,bit_depth);
+        std::printf("wifth: %d, height: %d, color_type: %d, bit_depth: %d\n",width,height,color_type,bit_depth);
 
         // Read any color_type into 8bit depth, RGBA format.
         // See http://www.libpng.org/pub/png/libpng-manual.txt
+        if(bit_depth == 16) png_set_strip_16(png);
 
-        if(bit_depth == 16)
-        png_set_strip_16(png);
-
-        if(color_type == PNG_COLOR_TYPE_PALETTE) {
-                std::printf("11111");  // no output
-                png_set_palette_to_rgb(png);
-        }
-
-
+        // The following code transforms grayscale images of less than 8 to 8 bits,
+        // changes paletted images to RGB, and adds a full alpha channel
+        // if there is transparency information in a tRNS chunk.
+        // This is most useful on grayscale images with bit depths of 2 or 4 or
+        // if there is a multiple-image viewing application that wishes to treat all images in the same way.
+        if(color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
         // PNG_COLOR_TYPE_GRAY_ALPHA is always 8 or 16bit depth.
-        if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-        png_set_expand_gray_1_2_4_to_8(png);
-
-        if(png_get_valid(png, info, PNG_INFO_tRNS))
-        png_set_tRNS_to_alpha(png);
+        if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand_gray_1_2_4_to_8(png);
+        if(png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
 
         // These color_type don't have an alpha channel then fill it with 0xff.
         if(color_type == PNG_COLOR_TYPE_RGB ||
-        color_type == PNG_COLOR_TYPE_GRAY ||
-        color_type == PNG_COLOR_TYPE_PALETTE)
-        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
-
+           color_type == PNG_COLOR_TYPE_GRAY ||
+           color_type == PNG_COLOR_TYPE_PALETTE) png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
         if(color_type == PNG_COLOR_TYPE_GRAY ||
-        color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-        png_set_gray_to_rgb(png);
-
+           color_type == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png);
         png_read_update_info(png, info);
 
         if (row_pointers) abort();
-
         row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
         for(int y = 0; y < height; y++) {
-                // png_byte* aka unsigned char *
+                // png_byte * aka unsigned char *
                 row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png,info));
         }
-        std::printf("in_width_bytes: %lu",png_get_rowbytes(png,info));
-
         png_read_image(png, row_pointers);
-        // std::printf("%s", row_pointers[100]);
-
-        // fclose(fp);
-
         png_destroy_read_struct(&png, &info, NULL);
 }
 
 void read_jpeg_file(FILE *fp) {
+
         unsigned long x, y;
         unsigned long data_size;     // length of the file
-        int channels;               //  3 =>RGB   4 =>RGBA
-        unsigned int type;
+        int channels;                //  3 =>RGB   4 =>RGBA
         unsigned char * rowptr[1];    // pointer to an array
         unsigned char * jdata;        // data for the image
         struct jpeg_decompress_struct info; //for our jpeg info
         struct jpeg_error_mgr err;          //the error handler
-
-
 
         info.err = jpeg_std_error(& err);
         jpeg_create_decompress(& info);   //fills info structure
 
         //if the jpeg file doesn't load
         if(!fp) {
-                fprintf(stderr, "Error reading JPEG file %s!", fp);
+                fprintf(stderr, "Error reading JPEG file!");
                 return;
         }
         jpeg_stdio_src(&info, fp);
@@ -158,58 +125,26 @@ void read_jpeg_file(FILE *fp) {
         width = info.output_width;
         height = info.output_height;
         channels = info.num_components;
-        // type = GL_RGB;
-        // if(channels == 4) type = GL_RGBA;
-        std::printf("%d\n", 5);
         data_size = width * height * channels;
 
-        //--------------------------------------------
-        // read scanlines one at a time & put bytes
-        //    in jdata[] array. Assumes an RGB image
-        //--------------------------------------------
-        // *row_pointers = (unsigned char *)malloc(data_size);
+        // read one scanline at a time
+        // put bytes in jdata[] array. Assumes an RGB image
         jdata = (unsigned char *)malloc(data_size);
-
-        std::printf("%d\n", 6);
-        while (info.output_scanline < info.output_height) // loop
-        {
+        while (info.output_scanline < info.output_height) {
                 // Enable jpeg_read_scanlines() to fill our jdata array
-                rowptr[0] = (unsigned char *)jdata +  // secret to method
-                    3 * info.output_width * info.output_scanline;
-                // row_pointers[0] = (unsigned char *)jdata +  // secret to method
-                //     3 * info.output_width * info.output_scanline;
-                // std::printf("%3d   ", jdata[3 * info.output_width * info.output_scanline+200]);
-                // std::printf("%3d   ", jdata[3 * info.output_width * info.output_scanline+1+200]);
-                // std::printf("%3d   ", jdata[3 * info.output_width * info.output_scanline+2+200]);
+                rowptr[0] = (unsigned char *)jdata + 3 * info.output_width * info.output_scanline;
                 jpeg_read_scanlines(&info, rowptr, 1);
-                // std::printf("%3d   ", jdata[3 * info.output_width * (info.output_scanline-1)+200]);
-                // std::printf("%3d   ", jdata[3 * info.output_width * (info.output_scanline-1)+1+200]);
-                // std::printf("%3d   \n", jdata[3 * info.output_width * (info.output_scanline-1)+2+200]);
-
         }
 
+        // modify jdata[] to row_pointers[][] shape for process function
         row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
         for (int y = 0; y < height; y++) {
                 row_pointers[y] = &(jdata[y * width * channels]);
         }
-
-
-
-//         for (int y = 0; y < height; y++) {
-//                 for (int x = 0; x < width; x++) {
-//                         if(y == 0){                        std::printf("RGB(%d,%d) %d %d %d \n",y,x,jdata[y*width*3+x*3+0],jdata[y*width*3+x*3+1],jdata[y*width*3+x*3+2]);
-// }
-//                 }
-//                 // std::printf("");
-//
-//         }
-        //---------------------------------------------------
-        std::printf("%d\n", 8);
         jpeg_finish_decompress(&info);   //finish decompressing
 }
 
 void write_png_file(char *filename) {
-        int y;
 
         FILE *fp = fopen(filename, "wb");
         if(!fp) abort();
@@ -219,11 +154,9 @@ void write_png_file(char *filename) {
 
         png_infop info = png_create_info_struct(png);
         if (!info) abort();
-
         if (setjmp(png_jmpbuf(png))) abort();
 
         png_init_io(png, fp);
-
         // Output is 8bit depth, RGBA format.
         png_set_IHDR(
                 png,
@@ -242,83 +175,58 @@ void write_png_file(char *filename) {
         // png_set_filler(png, 0, PNG_FILLER_AFTER);
 
         if (!out_png) abort();
-
         png_write_image(png, out_png);
         png_write_end(png, NULL);
-        std::printf("~~~~~~~~");
-        // for(int y = 0; y < height_o; y++) {
-        //         free(out_png[y]);
-        // }
-        std::printf("~~~~~~~~");
         free(out_png);
-        std::printf("~~~~~~~~");
-
         fclose(fp);
-
         png_destroy_write_struct(&png, &info);
 }
 
-void write_jpeg_file(char *filename, int quality) {
-        std::printf("%d \n", 12321);
-        // std::string str;
+void write_jpeg_file(char *filename, int quality = 50) {
+/*
+        int quality: compression rate
+*/
         image_buffer = (unsigned char *)malloc(height_o * width_o * channels);
+        // image data from 2D out_png[][] to 1D image_buffer[]
         for(int y = 0; y < height_o; y++) {
-                // std::printf("%d ", y);
                 for(int x = 0; x < width_o*channels; x++) {
                         image_buffer[y*width_o*3+x] = out_png[y][x];
                 }
         }
 
-        std::printf("%d \n", 22223);
         struct jpeg_compress_struct cinfo;
         struct jpeg_error_mgr jerr;
-        /* More stuff */
         FILE * outfile;		/* target file */
         JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
         int row_stride;		/* physical row width in image buffer */
 
-        std::printf("%d \n", 22223);
         cinfo.err = jpeg_std_error(&jerr);
         jpeg_create_compress(&cinfo);
-        std::printf("%d \n", 12321);
         if ((outfile = fopen(filename, "wb")) == NULL) {
                 fprintf(stderr, "can't open %s\n", filename);
                 exit(1);
         }
         jpeg_stdio_dest(&cinfo, outfile);
 
-        cinfo.image_width = width_o; 	/* image width and height, in pixels */
+        cinfo.image_width = width_o; 	//in pixels
         cinfo.image_height = height_o;
-        cinfo.input_components = 3;		/* # of color components per pixel */
-        cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+        cinfo.input_components = RGB;   // # of color components per pixel
+        cinfo.in_color_space = JCS_RGB; // colorspace of input image
 
         jpeg_set_defaults(&cinfo);
         jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
         jpeg_start_compress(&cinfo, TRUE);
-        row_stride = width_o * channels;	/* JSAMPLEs per row in image_buffer */
+        row_stride = width_o * channels;       // JSAMPLEs per row in image_buffer
 
         while (cinfo.next_scanline < cinfo.image_height) {
-                // std::printf("line_o: %d\n", cinfo.next_scanline);
                 row_pointer[0] = & image_buffer[cinfo.next_scanline * row_stride];
                         (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
         }
 
-        /* Step 6: Finish compression */
-
         jpeg_finish_compress(&cinfo);
-        /* After finish_compress, we can close the output file. */
         fclose(outfile);
-
-        /* Step 7: release JPEG compression object */
-
-        /* This is an important step since it will release a good deal of memory. */
         jpeg_destroy_compress(&cinfo);
 }
-
-
-
-
-
 
 void read_image(char *filename) {
 
@@ -335,9 +243,12 @@ void read_image(char *filename) {
 
 void process_image() {
 
-        // row_pointers[0][0], row_pointers[0][1], row_pointers[0][2] -> border RGB
+        // detect border and crop
+        // use row_pointers[0][0], row_pointers[0][1], row_pointers[0][2] as border RGB
+
+        // up border
         bool flag = true;
-        out_idx_DT r1, r2, c1, c2;
+        int r1, r2, c1, c2; // top row, bottom row, left col, right col
         for(int y = 0; y < height; y++) {
                 png_bytep row = row_pointers[y];
                 for(int x = 0; x < width; x++) {
@@ -346,16 +257,12 @@ void process_image() {
                                 r1 = y;
                                 std::printf("top: %d\n", r1);
                                 flag = false;
-                                // std::printf("%4d, %4d = RGB(%5d, %3d, %3d)\n", x, y, px[0], px[1], px[2]);
                                 break;
                         }
-                        // std::printf("%4d, %4d = RGB(%5d, %3d, %3d)\n", x, y, px[0], px[1], px[2]);
                 }
-                if(!flag) {
-                        flag = true;
-                        break;
-                }
+                if(!flag) { flag = true; break; }
         }
+        // bottom border
         for(int y = height - 1; y >= 0; y--) {
                 png_bytep row = row_pointers[y];
                 for(int x = 0; x < width; x++) {
@@ -367,11 +274,9 @@ void process_image() {
                                 break;
                         }
                 }
-                if(!flag) {
-                        flag = true;
-                        break;
-                }
+                if(!flag) { flag = true; break; }
         }
+        // left border
         for(int x = 0; x < width; x++) {
                 for(int y = r1; y <= r2; y++) {
                         png_bytep row = row_pointers[y];
@@ -382,13 +287,10 @@ void process_image() {
                                 flag = false;
                                 break;
                         }
-                        // std::printf("%4d, %4d = RGBA(%5d, %3d, %3d, %3d)\n", x, y, px[0], px[1], px[2], px[3]);
                 }
-                if(!flag) {
-                        flag = true;
-                        break;
-                }
+                if(!flag) { flag = true; break; }
         }
+        // right border
         for(int x = width-1; x >= 0; x--) {
                 for(int y = r1; y <= r2; y++) {
                         png_bytep row = row_pointers[y];
@@ -399,50 +301,26 @@ void process_image() {
                                 flag = false;
                                 break;
                         }
-                        // std::printf("%4d, %4d = RGBA(%5d, %3d, %3d, %3d)\n", x, y, px[0], px[1], px[2], px[3]);
                 }
-                if(!flag) {
-                        flag = true;
-                        break;
-                }
+                if(!flag) { flag = true; break; }
         }
+
+        // save inner image data
         height_o = r2 - r1 + 1; width_o = c2 - c1 + 1;
+        std::printf("height_o: %d, width_o: %d\n", height_o, width_o);
         out_png = (png_bytep*)malloc(sizeof(png_bytep) * height_o);
-
-        std::printf("out_png_height1: %lu\n", sizeof(png_bytep) * height_o);
-        std::printf("out_png_height2: %lu\n", sizeof(png_bytep));
-        std::printf("h_o: %d, w_o: %d\n", height_o, width_o);
-        for(int y = 0; y < height_o; y++) {
-
-                out_png[y] = row_pointers[y+r1]+c1*channels;
-                // for(int x = 0; x < width_o*channels; x++) {
-                //         // std::printf("x: %d, y: %d\n", x, y);
-                //         // std::printf("row_pointers: %d\n", row_pointers[y+r1][x+c1*4]);
-                //         // std::printf("row_pointers: %d\n", row_pointers[y+r1][x+c1*4]);
-                //
-                //         // out_png[y][x] = row_pointers[y+r1][x+c1*4];
-                // }
-        }
-        std::printf("%d \n", 12222);
-        // for(int y = 0; y < height_o; y++) {
-        //         png_bytep row = out_png[y];
-        //         for(int x = 0; x < width_o; x++) {
-        //                 png_bytep px = &(row[x * channels]);  // px[0] -> unsigned char -> d -> use ASCII
-        //                 // std::printf("%4d, %4d = RGBA(%5d, %3d, %3d, %3d)\n", x, y, px[0], px[1], px[2], px[3]);
-        //         }
-        // }
+        for(int y = 0; y < height_o; y++) out_png[y] = row_pointers[y+r1]+c1*channels;
 
 }
 
 int main(int argc, char *argv[]) {
-        // if(argc != 3) abort();
+
+        if(argc != 3) abort();
 
         read_image(argv[1]);
         process_image();
-        // write_png_file(argv[2]);
         if(std::strstr(type, "png")) write_png_file(argv[2]);
         if(std::strstr(type, "jpeg")) write_jpeg_file(argv[2],50);
-
 
         return 0;
 }
