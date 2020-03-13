@@ -69,31 +69,31 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
   opencv output  
 ]  
 
-jpeg_i.jpeg
+jpeg_i.jpeg  
 <img src="https://backto1995.com/temp_img/jpeg_i.jpeg" width="40%"/>
 <img src="https://backto1995.com/temp_img/jpeg_o.jpeg" width="40%"/>
-<img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" width="40%"/>
-jpeg_lr_i.jpeg
+<img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" width="40%"/>  
+jpeg_lr_i.jpeg  
 <img src="https://backto1995.com/temp_img/jpeg_lr_i.jpeg" width="40%"/>
 <img src="https://backto1995.com/temp_img/jpeg_lr_o.jpeg" width="40%"/>
-<img src="https://backto1995.com/temp_img/jpeg_lr_o_cv.jpeg" width="40%"/>
-png_8_i.jpeg
+<img src="https://backto1995.com/temp_img/jpeg_lr_o_cv.jpeg" width="40%"/>  
+png_8_i.jpeg  
 <img src="https://backto1995.com/temp_img/png_8_i.png" width="40%"/>
 <img src="https://backto1995.com/temp_img/png_8_o.png" width="40%"/>
-<img src="https://backto1995.com/temp_img/png_8_o_cv.png" width="40%"/>
-png_i.jpeg
+<img src="https://backto1995.com/temp_img/png_8_o_cv.png" width="40%"/>  
+png_i.jpeg  
 <img src="https://backto1995.com/temp_img/png_i.png" width="40%"/>
 <img src="https://backto1995.com/temp_img/png_o.png" width="40%"/>
-<img src="https://backto1995.com/temp_img/png_o_cv.png" width="40%"/>
-png_RGBA_i.jpeg
+<img src="https://backto1995.com/temp_img/png_o_cv.png" width="40%"/>  
+png_RGBA_i.jpeg  
 <img src="https://backto1995.com/temp_img/png_RGBA_i.png" width="40%"/>
 <img src="https://backto1995.com/temp_img/png_RGBA_o.png" width="40%"/>
-<img src="https://backto1995.com/temp_img/png_RGBA_o_cv.png" width="40%"/>
-png_up_i.jpeg
+<img src="https://backto1995.com/temp_img/png_RGBA_o_cv.png" width="40%"/>  
+png_up_i.jpeg  
 <img src="https://backto1995.com/temp_img/png_up_i.png" width="40%"/>
 <img src="https://backto1995.com/temp_img/png_up_o.png" width="40%"/>
-<img src="https://backto1995.com/temp_img/png_up_o_cv.png" width="40%"/>
-webP_i.jpeg
+<img src="https://backto1995.com/temp_img/png_up_o_cv.png" width="40%"/>  
+webP_i.jpeg  
 <img src="https://backto1995.com/temp_img/webP_i.webp" width="40%"/>
 <img src="https://backto1995.com/temp_img/webP_o.webp" width="40%"/>
-<img src="https://backto1995.com/temp_img/webP_o_cv.webp" width="40%"/>
+<img src="https://backto1995.com/temp_img/webP_o_cv.webp" width="40%"/>  
