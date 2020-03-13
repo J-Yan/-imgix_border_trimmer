@@ -64,5 +64,5 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 [origin, lib output, opencv output]
 #### jpeg_i.jpeg
 <img src="https://backto1995.com/temp_img/jpeg_i.jpeg" width="30%"/>
-<img src="https://backto1995.com/temp_img/jpeg_o.jpeg" width="30%"/>
-<img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" width="30%"/>
+<img src="https://backto1995.com/temp_img/jpeg_o.jpeg" width="30%" style="float:left"/>
+<img src="https://backto1995.com/temp_img/jpeg_o_cv.jpeg" width="30%" style="float:left"/>
