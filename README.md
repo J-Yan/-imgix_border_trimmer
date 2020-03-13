@@ -63,10 +63,10 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 #### Trimmed image might have bigger size than original one
 
 ## Test case input and output images
-[
+[  
   origin,
   lib output,
-  opencv output
+  opencv output  
 ]
 #### jpeg_i.jpeg
 <img src="https://backto1995.com/temp_img/jpeg_i.jpeg" width="40%"/>
