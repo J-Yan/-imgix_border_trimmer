@@ -47,15 +47,15 @@ g++ $(pkg-config --cflags --libs opencv4)  -lmagic -std=c++11 borderTrimmer_cv.c
 ```
 
 ## Test images
-| File Name | Type | Notes |
-| ------ | ------ | ------ |
-| jpeg_i | jpeg |Created in PS. Border has noise|
-| jpeg_lr_i | jpeg |Created in PS. Border has noise. Only has left and right borders.|
-| png_8_i | png8 ||
-| png_i | png ||
-| png_RGBA_i | png |Fully transparent border.|
-| png_up_i | png |Only has top border.|
-|webP_i|webp|Boder width is 0, don't have tool to edit (can edit it use OpenCV). Take as 0-width border teat case.|
+| File Name | Type | Notes | Source |
+| ------ | ------ | ------ | ------ |
+| jpeg_i | jpeg |Created in PS. Border has noise|Taken by myself|
+| jpeg_lr_i | jpeg |Created in PS. Border has noise. Only has left and right borders.|Taken by myself|
+| png_8_i | png8 ||Taken by myself|
+| png_i | png ||Taken by myself|
+| png_RGBA_i | png |Fully transparent border.|Taken by myself|
+| png_up_i | png |Only has top border.|Taken by myself|
+|webP_i|webp|Boder width is 0, don't have tool to edit (can edit it use OpenCV). Take as 0-width border teat case.|From Internet|
 
 ## Limitations
 #### Didn't cover all the image types
