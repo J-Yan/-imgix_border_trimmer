@@ -1,6 +1,5 @@
 # Border Trimmer
-
-Modified version repo link: https://github.com/J-Yan/-imgix_border_trimmer_2
+Modified version repo link: https://github.com/J-Yan/-imgix_border_trimmer_2
 
 ## Function Description
 Assume you are given an image that consists of the actual image content which is contained inside a frame/set of borders of a **known RGB** color but **unknown widths**.  The borders are all a **single color** and **perfectly row/column aligned**. There is an example image attached but please note that this should work with any image that meets the above specifications.
